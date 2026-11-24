@@ -1,0 +1,45 @@
+---
+interface Crumb {
+  label: string;
+  href?: string;
+}
+interface Props {
+  eyebrow: string;
+  title: string;
+  lead?: string;
+  breadcrumbs?: Crumb[];
+}
+const { eyebrow, title, lead, breadcrumbs = [] } = Astro.props;
+---
+
+<section class="relative overflow-hidden border-b border-navy/10 pt-32 pb-16 lg:pt-40 lg:pb-20">
+  <div class="bg-blueprint pointer-events-none absolute inset-0 [mask-image:linear-gradient(to_bottom,black,transparent)]" aria-hidden="true"></div>
+  <div class="container-site relative">
+    {
+      breadcrumbs.length > 0 && (
+        <nav aria-label="Ruta de navegación" class="mb-8">
+          <ol class="flex flex-wrap items-center gap-2 text-sm text-navy-500">
+            {breadcrumbs.map((c, i) => (
+              <li class="flex items-center gap-2">
+                {c.href ? (
+                  <a href={c.href} class="link-underline hover:text-navy">{c.label}</a>
+                ) : (
+                  <span aria-current="page" class="text-navy">{c.label}</span>
+                )}
+                {i < breadcrumbs.length - 1 && <span aria-hidden="true" class="text-navy-300">/</span>}
+              </li>
+            ))}
+          </ol>
+        </nav>
+      )
+    }
+    <p class="eyebrow flex items-center gap-3 text-teal-700" data-reveal>
+      <span class="h-px w-8 bg-current opacity-50" aria-hidden="true"></span>{eyebrow}
+    </p>
+    <h1 class="mt-6 max-w-4xl text-[2.4rem] leading-[1.06] font-medium tracking-[-0.03em] sm:text-[3.2rem] lg:text-[3.8rem]" data-reveal style="--reveal-delay: 80ms">
+      {title}
+    </h1>
+    {lead && <p class="mt-6 max-w-2xl text-[1.1rem] leading-relaxed text-navy-500" data-reveal style="--reveal-delay: 160ms">{lead}</p>}
+    <slot />
+  </div>
+</section>

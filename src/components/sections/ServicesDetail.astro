@@ -1,0 +1,74 @@
+---
+import Icon from '../ui/Icon.astro';
+import { services } from '@/data/services';
+import { getProject } from '@/data/projects';
+---
+
+<div class="divide-y divide-navy/10 border-y border-navy/10">
+  {
+    services.map((service) => {
+      const related = service.relatedProjects.map(getProject).filter((p) => p !== undefined);
+      return (
+        <article id={service.id} class="grid scroll-mt-28 gap-10 py-16 lg:grid-cols-12 lg:gap-10 lg:py-20" aria-labelledby={`${service.id}-title`}>
+          <div class="lg:col-span-5" data-reveal>
+            <div class="flex items-center gap-4">
+              <span class="inline-flex size-12 items-center justify-center rounded-[3px] bg-navy text-ivory-50">
+                <Icon name={service.icon} size={22} />
+              </span>
+              <span class="font-mono text-xs text-navy-300">{service.index}</span>
+            </div>
+            <h2 id={`${service.id}-title`} class="mt-8 text-[2rem] leading-tight font-medium sm:text-[2.4rem]">
+              {service.title}
+            </h2>
+            <p class="mt-2 text-bronze-700">{service.subtitle}</p>
+            <p class="mt-6 text-[1.05rem] leading-relaxed text-navy-700">{service.summary}</p>
+            <p class="mt-4 leading-relaxed text-navy-500">{service.description}</p>
+          </div>
+
+          <div class="grid gap-8 sm:grid-cols-2 lg:col-span-7 lg:gap-6" data-reveal style="--reveal-delay: 100ms">
+            <div class="rounded-[4px] border border-navy/10 bg-ivory-50 p-7">
+              <h3 class="eyebrow text-teal-700">Aplicaciones</h3>
+              <ul class="mt-5 space-y-3.5">
+                {service.applications.map((item) => (
+                  <li class="flex gap-3 text-[0.95rem] leading-snug text-navy-700">
+                    <span class="mt-2 size-1.5 shrink-0 bg-teal" aria-hidden="true" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div class="rounded-[4px] border border-navy/10 bg-ivory-50 p-7">
+              <h3 class="eyebrow text-bronze-700">Problemas que puede abordar</h3>
+              <ul class="mt-5 space-y-3.5">
+                {service.problems.map((item) => (
+                  <li class="flex gap-3 text-[0.95rem] leading-snug text-navy-700">
+                    <span class="mt-2 size-1.5 shrink-0 rotate-45 bg-bronze" aria-hidden="true" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            {related.length > 0 && (
+              <div class="sm:col-span-2">
+                <p class="eyebrow text-navy-300">Proyectos relacionados</p>
+                <ul class="mt-4 flex flex-wrap gap-3">
+                  {related.map((project) => (
+                    <li>
+                      <a
+                        href={`/proyectos/${project.slug}`}
+                        class="group inline-flex items-center gap-2 rounded-[3px] border border-navy/15 px-4 py-2 text-sm font-medium transition-colors hover:border-navy hover:bg-white"
+                      >
+                        {project.name}
+                        <Icon name="arrow-up-right" size={14} class="text-teal-700 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        </article>
+      );
+    })
+  }
+</div>

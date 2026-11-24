@@ -1,0 +1,104 @@
+---
+/**
+ * Perfil del fundador. Todos los campos se editan en src/data/site-config.ts
+ * (siteConfig.founder). Los campos vacíos se muestran como pendientes; no se
+ * genera ninguna biografía automática.
+ */
+import Icon from '../ui/Icon.astro';
+import PendingNote from '../ui/PendingNote.astro';
+import { siteConfig, isConfigured } from '@/data/site-config';
+
+const f = siteConfig.founder;
+const hasName = isConfigured(f.name);
+const initials = hasName
+  ? f.name
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((w) => w[0]?.toUpperCase())
+      .join('')
+  : 'AX';
+---
+
+<div class="grid overflow-hidden rounded-[4px] border border-navy/10 bg-ivory-50 md:grid-cols-12">
+  <div class="relative md:col-span-5">
+    {
+      isConfigured(f.photo) ? (
+        <img
+          src={f.photo}
+          alt={hasName ? `Fotografía de ${f.name}` : 'Fotografía del fundador de ADROX'}
+          width="800"
+          height="800"
+          loading="lazy"
+          decoding="async"
+          class="aspect-square size-full object-cover"
+        />
+      ) : (
+        <div class="relative flex aspect-square size-full items-center justify-center bg-navy text-ivory" role="img" aria-label="Fotografía pendiente de agregar">
+          <div class="bg-blueprint-dark absolute inset-0" aria-hidden="true" />
+          <svg viewBox="0 0 200 200" class="absolute inset-0 size-full text-ivory/15" fill="none" aria-hidden="true">
+            <circle cx="100" cy="100" r="62" stroke="currentColor" />
+            <circle cx="100" cy="100" r="86" stroke="currentColor" stroke-dasharray="2 5" />
+          </svg>
+          <span class="relative text-[3.2rem] font-medium tracking-[0.12em]">{initials}</span>
+          <span class="absolute bottom-5 left-5 font-mono text-[0.68rem] tracking-[0.16em] text-ivory/55 uppercase">Fotografía pendiente</span>
+        </div>
+      )
+    }
+  </div>
+  <div class="flex flex-col p-8 sm:p-10 md:col-span-7">
+    <p class="eyebrow text-bronze-700">{f.role}</p>
+    <h3 class="mt-3 text-[1.8rem] leading-tight font-medium">
+      {hasName ? f.name : <span class="text-navy-300">Nombre del fundador</span>}
+    </h3>
+
+    <div class="prose-adrox mt-5 leading-relaxed text-navy-500">
+      {
+        f.bio.length > 0 ? (
+          f.bio.map((p) => <p class="text-navy-500">{p}</p>)
+        ) : (
+          <PendingNote>Perfil profesional pendiente de completar por el fundador.</PendingNote>
+        )
+      }
+    </div>
+
+    <div class="mt-7">
+      <p class="eyebrow text-[0.68rem] text-navy-300">Especialidades</p>
+      {
+        f.specialties.length > 0 ? (
+          <ul class="mt-3 flex flex-wrap gap-2">
+            {f.specialties.map((s) => (
+              <li class="rounded-[2px] border border-navy/12 bg-white px-3 py-1.5 text-sm">{s}</li>
+            ))}
+          </ul>
+        ) : (
+          <p class="mt-3 text-sm text-navy-500">Pendiente de completar.</p>
+        )
+      }
+    </div>
+
+    <div class="mt-auto flex flex-wrap gap-3 pt-8">
+      {
+        isConfigured(f.linkedin) ? (
+          <a href={f.linkedin} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 rounded-[3px] border border-navy/15 px-4 py-2 text-sm font-medium hover:border-navy">
+            <Icon name="linkedin" size={16} /> LinkedIn<span class="sr-only">(se abre en una pestaña nueva)</span>
+          </a>
+        ) : (
+          <span class="inline-flex items-center gap-2 rounded-[3px] border border-dashed border-navy/15 px-4 py-2 text-sm text-navy-300">
+            <Icon name="linkedin" size={16} /> LinkedIn pendiente
+          </span>
+        )
+      }
+      {
+        isConfigured(f.github) ? (
+          <a href={f.github} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 rounded-[3px] border border-navy/15 px-4 py-2 text-sm font-medium hover:border-navy">
+            <Icon name="github" size={16} /> GitHub<span class="sr-only">(se abre en una pestaña nueva)</span>
+          </a>
+        ) : (
+          <span class="inline-flex items-center gap-2 rounded-[3px] border border-dashed border-navy/15 px-4 py-2 text-sm text-navy-300">
+            <Icon name="github" size={16} /> GitHub pendiente
+          </span>
+        )
+      }
+    </div>
+  </div>
+</div>

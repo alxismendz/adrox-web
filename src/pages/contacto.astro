@@ -1,0 +1,113 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHeader from '@/components/layout/PageHeader.astro';
+import ContactForm from '@/components/sections/ContactForm.astro';
+import Icon from '@/components/ui/Icon.astro';
+import { siteConfig, isConfigured, activeSocialLinks } from '@/data/site-config';
+
+const { email, phone, responseTime } = siteConfig.contact;
+const social = activeSocialLinks();
+
+const steps = [
+  'Revisamos tu solicitud y el contexto del problema.',
+  'Si necesitamos más información, te escribimos para aclarar detalles.',
+  'Te proponemos un enfoque técnico y los siguientes pasos.',
+];
+---
+
+<BaseLayout
+  title="Contacto"
+  description="Cuéntale a ADROX tu necesidad: proyectos de software, inteligencia artificial, IoT, transformación digital y colaboraciones tecnológicas."
+>
+  <PageHeader
+    eyebrow="Contacto"
+    title="Hablemos de tu proyecto."
+    lead="Describe el problema que quieres resolver. Cuanto más contexto compartas, mejor podremos orientar la solución."
+    breadcrumbs={[{ label: 'Inicio', href: '/' }, { label: 'Contacto' }]}
+  />
+
+  <section class="py-16 lg:py-24" aria-labelledby="form-title">
+    <div class="container-site grid gap-14 lg:grid-cols-12 lg:gap-10">
+      <aside class="lg:col-span-4">
+        <h2 class="text-[1.4rem] font-medium">Qué pasa después</h2>
+        <ol class="mt-6 space-y-5">
+          {
+            steps.map((s, i) => (
+              <li class="flex gap-4">
+                <span class="font-mono text-xs leading-6 text-bronze-700">0{i + 1}</span>
+                <span class="leading-relaxed text-navy-500">{s}</span>
+              </li>
+            ))
+          }
+        </ol>
+
+        <dl class="mt-12 space-y-6 border-t border-navy/10 pt-8 text-[0.95rem]">
+          {
+            isConfigured(email) && (
+              <div>
+                <dt class="eyebrow text-[0.68rem] text-navy-300">Correo</dt>
+                <dd class="mt-2">
+                  <a href={`mailto:${email}`} class="inline-flex items-center gap-2 font-medium break-all text-teal-700 hover:underline">
+                    <Icon name="mail" size={16} />
+                    {email}
+                  </a>
+                </dd>
+              </div>
+            )
+          }
+          {
+            isConfigured(phone) && (
+              <div>
+                <dt class="eyebrow text-[0.68rem] text-navy-300">Teléfono</dt>
+                <dd class="mt-2">
+                  <a href={`tel:${phone.replace(/\s+/g, '')}`} class="inline-flex items-center gap-2 font-medium text-teal-700 hover:underline">
+                    <Icon name="phone" size={16} />
+                    {phone}
+                  </a>
+                </dd>
+              </div>
+            )
+          }
+          {
+            isConfigured(responseTime) && (
+              <div>
+                <dt class="eyebrow text-[0.68rem] text-navy-300">Tiempo de respuesta</dt>
+                <dd class="mt-2 inline-flex items-center gap-2">
+                  <Icon name="clock" size={16} class="text-navy-500" />
+                  {responseTime}
+                </dd>
+              </div>
+            )
+          }
+          <div>
+            <dt class="eyebrow text-[0.68rem] text-navy-300">Cobertura</dt>
+            <dd class="mt-2 text-navy-700">{siteConfig.region}</dd>
+          </div>
+          {
+            social.length > 0 && (
+              <div>
+                <dt class="eyebrow text-[0.68rem] text-navy-300">Redes</dt>
+                <dd class="mt-3 flex flex-wrap gap-2">
+                  {social.map((s) => (
+                    <a href={s.url} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 rounded-[3px] border border-navy/15 px-3 py-1.5 text-sm hover:border-navy">
+                      <Icon name={s.icon} size={15} /> {s.label}
+                      <span class="sr-only">(se abre en una pestaña nueva)</span>
+                    </a>
+                  ))}
+                </dd>
+              </div>
+            )
+          }
+        </dl>
+      </aside>
+
+      <div class="lg:col-span-7 lg:col-start-6">
+        <div class="rounded-[4px] border border-navy/10 bg-ivory-50 p-6 sm:p-10">
+          <h2 id="form-title" class="text-[1.6rem] font-medium">Solicitud de proyecto o colaboración</h2>
+          <p class="mt-2 mb-8 text-navy-500">Completa el formulario y revisaremos tu necesidad.</p>
+          <ContactForm />
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

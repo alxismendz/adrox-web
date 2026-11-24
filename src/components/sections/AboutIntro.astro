@@ -1,0 +1,52 @@
+---
+import SectionHeading from '../ui/SectionHeading.astro';
+import Button from '../ui/Button.astro';
+
+interface Props {
+  index?: string;
+}
+const { index = '05' } = Astro.props;
+
+const pillars = [
+  { title: 'Ingeniería aplicada', body: 'Partimos de problemas concretos y priorizamos soluciones que funcionen en condiciones reales.' },
+  { title: 'Integración de disciplinas', body: 'Software, inteligencia artificial, electrónica y telecomunicaciones trabajando en un mismo sistema.' },
+  { title: 'Innovación responsable', body: 'Comunicamos con transparencia el estado de cada proyecto y lo que todavía está en desarrollo.' },
+];
+---
+
+<section id="nosotros" class="border-t border-navy/10 bg-ivory-50 py-24 lg:py-32" aria-labelledby="nosotros-title">
+  <div class="container-site grid gap-14 lg:grid-cols-12 lg:gap-10">
+    <div class="lg:col-span-6">
+      <SectionHeading
+        id="nosotros-title"
+        index={index}
+        eyebrow="Nosotros"
+        title="Una iniciativa tecnológica construida desde la ingeniería."
+      />
+      <div class="mt-8 max-w-xl space-y-4 text-[1.05rem] leading-relaxed text-navy-500" data-reveal>
+        <p>
+          ADROX es una iniciativa tecnológica en construcción, centrada en la ingeniería aplicada, la innovación y la
+          resolución de problemas empresariales, operativos e industriales.
+        </p>
+        <p>
+          Buscamos integrar distintas disciplinas de la ingeniería para crear soluciones prácticas, con una visión de
+          largo plazo para empresas, emprendedores e instituciones de Ecuador y Latinoamérica.
+        </p>
+      </div>
+      <div class="mt-10" data-reveal>
+        <Button href="/nosotros" variant="secondary">Conocer ADROX</Button>
+      </div>
+    </div>
+    <ul class="grid gap-px self-start overflow-hidden rounded-[4px] border border-navy/10 bg-navy/10 lg:col-span-5 lg:col-start-8">
+      {
+        pillars.map((p, i) => (
+          <li class="bg-ivory p-7" data-reveal style={`--reveal-delay: ${i * 80}ms`}>
+            <p class="font-mono text-xs text-bronze-700">0{i + 1}</p>
+            <h3 class="mt-2 text-[1.15rem] font-medium">{p.title}</h3>
+            <p class="mt-2 leading-relaxed text-navy-500">{p.body}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

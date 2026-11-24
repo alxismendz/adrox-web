@@ -1,0 +1,40 @@
+---
+import SectionHeading from '../ui/SectionHeading.astro';
+import Icon from '../ui/Icon.astro';
+import { technologyGroups } from '@/data/technologies';
+
+interface Props {
+  index?: string;
+}
+const { index = '04' } = Astro.props;
+---
+
+<section id="tecnologias" class="py-24 lg:py-32" aria-labelledby="tecnologias-title">
+  <div class="container-site">
+    <SectionHeading
+      id="tecnologias-title"
+      index={index}
+      eyebrow="Tecnologías"
+      title="Herramientas que empleamos en nuestros proyectos."
+      lead="Seleccionamos cada tecnología según el problema. Esta lista refleja las herramientas utilizadas en los proyectos de ADROX; no representa certificaciones oficiales."
+      align="split"
+    />
+    <ul class="mt-16 grid border-t border-l border-navy/10 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        technologyGroups.map((group, i) => (
+          <li class="border-r border-b border-navy/10 p-8 transition-colors duration-500 hover:bg-ivory-50" data-reveal style={`--reveal-delay: ${(i % 3) * 70}ms`}>
+            <div class="flex items-center gap-3">
+              <Icon name={group.icon} size={20} class="text-teal-700" />
+              <h3 class="text-[1.05rem] font-medium">{group.title}</h3>
+            </div>
+            <ul class="mt-6 flex flex-wrap gap-x-5 gap-y-2.5">
+              {group.items.map((item) => (
+                <li class="font-mono text-[0.82rem] text-navy-700">{item}</li>
+              ))}
+            </ul>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

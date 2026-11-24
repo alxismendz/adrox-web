@@ -1,0 +1,21 @@
+---
+/**
+ * Marca visible para contenido pendiente de completar.
+ * Se usa en lugar de inventar información.
+ */
+import Icon from './Icon.astro';
+interface Props {
+  class?: string;
+}
+const { class: className } = Astro.props;
+---
+
+<p
+  class:list={[
+    'flex items-start gap-2.5 rounded-[3px] border border-dashed border-navy/20 bg-ivory-50/70 px-4 py-3 text-sm text-navy-500',
+    className,
+  ]}
+>
+  <Icon name="pending" size={16} class="mt-0.5 shrink-0 text-bronze-700" />
+  <span><slot /></span>
+</p>

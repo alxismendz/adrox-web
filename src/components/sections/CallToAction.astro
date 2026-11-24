@@ -1,0 +1,32 @@
+---
+import Button from '../ui/Button.astro';
+
+interface Props {
+  title?: string;
+  text?: string;
+}
+const {
+  title = '¿Tienes una idea o un problema que la tecnología pueda resolver?',
+  text = 'Cuéntanos tu necesidad. Analizaremos el contexto y te propondremos un camino técnico viable.',
+} = Astro.props;
+---
+
+<section class="on-dark relative overflow-hidden bg-navy-900 py-20 text-ivory lg:py-28" aria-labelledby="cta-title">
+  <svg class="pointer-events-none absolute -right-20 -bottom-40 h-[520px] w-[520px] text-ivory/10" viewBox="0 0 520 520" fill="none" aria-hidden="true">
+    <circle cx="260" cy="260" r="120" stroke="currentColor"></circle>
+    <circle cx="260" cy="260" r="190" stroke="currentColor"></circle>
+    <circle cx="260" cy="260" r="258" stroke="currentColor" stroke-dasharray="2 6"></circle>
+    <path d="M260 2v516M2 260h516" stroke="currentColor"></path>
+  </svg>
+  <div class="container-site relative flex flex-col items-start justify-between gap-10 lg:flex-row lg:items-end">
+    <div class="max-w-2xl" data-reveal>
+      <p class="eyebrow text-bronze-300">Contacto</p>
+      <h2 id="cta-title" class="mt-5 text-[2rem] leading-[1.12] font-medium sm:text-[2.6rem]">{title}</h2>
+      <p class="mt-5 text-[1.05rem] leading-relaxed text-ivory/70">{text}</p>
+    </div>
+    <div class="flex flex-col gap-3 sm:flex-row" data-reveal style="--reveal-delay: 100ms">
+      <Button href="/contacto" variant="light" size="lg">Hablemos de tu proyecto</Button>
+      <Button href="/proyectos" variant="outline-light" size="lg">Ver proyectos</Button>
+    </div>
+  </div>
+</section>

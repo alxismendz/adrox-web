@@ -1,0 +1,21 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Button from '@/components/ui/Button.astro';
+---
+
+<BaseLayout title="Página no encontrada" description="La página que buscas no existe o fue movida." noindex>
+  <section class="relative flex min-h-[78vh] items-center overflow-hidden pt-28 pb-20">
+    <div class="bg-blueprint pointer-events-none absolute inset-0 [mask-image:radial-gradient(circle_at_center,black,transparent_70%)]" aria-hidden="true"></div>
+    <div class="container-site relative">
+      <p class="font-mono text-sm tracking-[0.2em] text-bronze-700">ERROR 404</p>
+      <h1 class="mt-5 max-w-2xl text-[2.6rem] leading-tight font-medium sm:text-[3.4rem]">Esta página no existe o fue movida.</h1>
+      <p class="mt-5 max-w-xl text-[1.1rem] leading-relaxed text-navy-500">
+        Revisa la dirección o vuelve al inicio para seguir explorando ADROX.
+      </p>
+      <div class="mt-10 flex flex-col gap-3 sm:flex-row">
+        <Button href="/">Volver al inicio</Button>
+        <Button href="/proyectos" variant="secondary">Ver proyectos</Button>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

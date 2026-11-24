@@ -1,0 +1,24 @@
+---
+/**
+ * Logotipo tipográfico de ADROX.
+ * Isotipo: una "A" abierta construida con trazos y un nodo, que representa la
+ * conexión entre disciplinas. Sustituible por el logotipo oficial cuando exista.
+ */
+interface Props {
+  tone?: 'dark' | 'light';
+  class?: string;
+  /** Muestra solo el isotipo. */
+  markOnly?: boolean;
+}
+const { tone = 'dark', class: className = '', markOnly = false } = Astro.props;
+const ink = tone === 'dark' ? 'text-navy' : 'text-ivory';
+---
+
+<span class:list={['inline-flex items-center gap-2.5', ink, className]}>
+  <svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true" class="shrink-0">
+    <path d="M5 27 16 5l11 22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="miter" stroke-linecap="square"></path>
+    <path d="M10.5 19.5h11" fill="none" stroke="var(--color-bronze)" stroke-width="2.4" stroke-linecap="square"></path>
+    <circle cx="16" cy="5" r="2.6" fill="var(--color-teal)"></circle>
+  </svg>
+  {!markOnly && <span class="text-[1.15rem] leading-none font-semibold tracking-[0.24em]">ADROX</span>}
+</span>

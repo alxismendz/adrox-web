@@ -1,0 +1,61 @@
+---
+import Button from '../ui/Button.astro';
+import HeroVisual from './HeroVisual.astro';
+import { services } from '@/data/services';
+import { siteConfig } from '@/data/site-config';
+---
+
+<section class="relative overflow-hidden pt-28 pb-16 sm:pt-32 lg:pt-36 lg:pb-24" aria-labelledby="hero-title">
+  <div class="bg-blueprint pointer-events-none absolute inset-0 [mask-image:linear-gradient(to_bottom,black,transparent_85%)]" aria-hidden="true"></div>
+  <div class="container-site relative grid items-center gap-12 lg:grid-cols-12 lg:gap-10">
+    <div class="lg:col-span-7">
+      <p class="eyebrow flex items-center gap-3 text-teal-700" data-reveal>
+        <span class="h-px w-8 bg-current opacity-50" aria-hidden="true"></span>
+        Ingeniería digital · {siteConfig.region}
+      </p>
+      <h1
+        id="hero-title"
+        class="mt-7 text-[2.6rem] leading-[1.03] font-medium tracking-[-0.035em] sm:text-[3.6rem] lg:text-[4.4rem]"
+        data-reveal
+        style="--reveal-delay: 80ms"
+      >
+        Convertimos ideas en <span class="text-teal-700">soluciones</span> tecnológicas.
+      </h1>
+      <p class="mt-7 max-w-xl text-[1.1rem] leading-relaxed text-navy-500 sm:text-[1.2rem]" data-reveal style="--reveal-delay: 160ms">
+        Diseñamos y desarrollamos software, inteligencia artificial y sistemas tecnológicos para resolver problemas
+        reales.
+      </p>
+      <div class="mt-10 flex flex-col gap-3 sm:flex-row" data-reveal style="--reveal-delay: 240ms">
+        <Button href="/proyectos" size="lg">Explorar proyectos</Button>
+        <Button href="/contacto" size="lg" variant="secondary">Hablemos de tu proyecto</Button>
+      </div>
+    </div>
+    <div class="lg:col-span-5" data-reveal style="--reveal-delay: 200ms">
+      <HeroVisual />
+    </div>
+  </div>
+
+  <div class="container-site relative mt-16 lg:mt-24">
+    <ul class="grid grid-cols-2 border-t border-navy/12 lg:grid-cols-4" aria-label="Áreas de especialización">
+      {
+        services.map((s, i) => (
+          <li
+            class:list={[
+              'border-b border-navy/12 py-5 pr-4 lg:border-b-0',
+              i % 2 === 1 && 'pl-4 border-l lg:pl-6',
+              i >= 2 && 'lg:border-l lg:pl-6',
+              i === 2 && 'max-lg:pl-0',
+            ]}
+          >
+            <a href={`/servicios#${s.id}`} class="group block">
+              <span class="font-mono text-[0.72rem] text-navy-300">{s.index}</span>
+              <span class="mt-1 block text-[0.95rem] font-medium text-navy transition-colors group-hover:text-teal-700">
+                {s.title}
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

@@ -1,0 +1,55 @@
+---
+import Icon from '../ui/Icon.astro';
+import { mainNav, primaryCta } from '@/data/navigation';
+import { isActive } from '@/lib/url';
+
+const path = Astro.url.pathname;
+---
+
+<div
+  id="mobile-menu"
+  class="mobile-menu fixed inset-0 z-40 hidden flex-col overflow-y-auto overscroll-contain bg-ivory lg:hidden"
+  data-mobile-menu
+>
+  <nav aria-label="Navegación móvil" class="container-site flex flex-1 flex-col">
+    <ul class="border-t border-navy/10">
+      {
+        mainNav.map((item, i) => (
+          <li class="border-b border-navy/10">
+            <a
+              href={item.href}
+              aria-current={isActive(path, item.href) ? 'page' : undefined}
+              class="flex items-center justify-between py-5 text-[1.6rem] font-medium text-navy aria-[current=page]:text-teal-700"
+            >
+              <span>{item.label}</span>
+              <span class="font-mono text-xs text-navy-300">0{i + 1}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <div class="mt-auto pt-10 pb-10">
+      <a
+        href={primaryCta.href}
+        class="flex h-13 w-full items-center justify-center gap-2.5 rounded-[3px] bg-navy font-medium text-ivory-50"
+      >
+        {primaryCta.label}
+        <Icon name="arrow-right" size={16} />
+      </a>
+    </div>
+  </nav>
+</div>
+
+<style>
+  /* Ocupa todo el viewport visible (dvh descuenta las barras del navegador móvil)
+     y respeta las áreas seguras del dispositivo. */
+  .mobile-menu {
+    height: 100vh;
+    height: 100dvh;
+    padding-top: calc(5rem + env(safe-area-inset-top, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+    -webkit-overflow-scrolling: touch;
+  }
+</style>

@@ -1,0 +1,155 @@
+@import 'tailwindcss';
+
+/* ──────────────────────────────────────────────────────────────
+   Tokens de diseño ADROX
+   Azul marino #17253B · Marfil #F3F1EB · Verde petróleo #238C91
+   Bronce #B68A58 · Blanco #FFFFFF
+   Las variantes -700 se usan para texto sobre fondos claros (contraste AA).
+   ────────────────────────────────────────────────────────────── */
+@theme {
+  --font-sans: 'IBM Plex Sans Variable', 'IBM Plex Sans', ui-sans-serif, system-ui, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Code', Consolas, monospace;
+
+  --color-navy-950: #0c1524;
+  --color-navy-900: #111c2e;
+  --color-navy: #17253b;
+  --color-navy-700: #26384f;
+  --color-navy-500: #4a5a70;
+  --color-navy-300: #616d82;
+
+  --color-ivory: #f3f1eb;
+  --color-ivory-50: #faf9f5;
+  --color-ivory-200: #e6e2d8;
+  --color-ivory-300: #d6d0c2;
+
+  --color-teal: #238c91;
+  --color-teal-700: #1a6b6f;
+  --color-teal-300: #6cc3c6;
+  --color-teal-50: #e3f0ef;
+
+  --color-bronze: #b68a58;
+  --color-bronze-700: #7f5b31;
+  --color-bronze-300: #d4b38a;
+  --color-bronze-50: #f3ebdf;
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --container-site: 76rem;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: 6rem;
+  }
+
+  body {
+    @apply bg-ivory font-sans text-navy antialiased;
+    font-feature-settings: 'ss02', 'ss03';
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: var(--color-teal);
+    color: var(--color-ivory-50);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-sans text-balance;
+    letter-spacing: -0.02em;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Foco visible y consistente para teclado */
+  :focus-visible {
+    outline: 2px solid var(--color-teal);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  .on-dark :focus-visible {
+    outline-color: var(--color-teal-300);
+  }
+}
+
+@layer components {
+  .container-site {
+    @apply mx-auto w-full px-5 sm:px-8 lg:px-10;
+    max-width: var(--container-site);
+  }
+
+  .eyebrow {
+    @apply font-mono text-[0.72rem] font-medium tracking-[0.18em] uppercase;
+  }
+
+  .link-underline {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size 0.4s var(--ease-out-soft);
+  }
+
+  .link-underline:hover,
+  .link-underline:focus-visible {
+    background-size: 100% 1px;
+  }
+
+  /* Retícula técnica sutil usada como textura de fondo */
+  .bg-blueprint {
+    background-image:
+      linear-gradient(to right, rgb(23 37 59 / 0.06) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(23 37 59 / 0.06) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
+
+  .bg-blueprint-dark {
+    background-image:
+      linear-gradient(to right, rgb(243 241 235 / 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(243 241 235 / 0.05) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
+
+  .prose-adrox p + p {
+    @apply mt-4;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────
+   Animaciones de aparición (solo si hay JS y no se pide movimiento reducido)
+   ────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: no-preference) {
+  .js [data-reveal] {
+    opacity: 0;
+    transform: translateY(18px);
+    transition:
+      opacity 0.8s var(--ease-out-soft),
+      transform 0.8s var(--ease-out-soft);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+
+  .js [data-reveal].is-visible {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

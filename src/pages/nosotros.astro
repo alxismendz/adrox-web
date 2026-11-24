@@ -1,0 +1,113 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PageHeader from '@/components/layout/PageHeader.astro';
+import FounderProfile from '@/components/sections/FounderProfile.astro';
+import Technologies from '@/components/sections/Technologies.astro';
+import CallToAction from '@/components/sections/CallToAction.astro';
+import SectionHeading from '@/components/ui/SectionHeading.astro';
+import Icon from '@/components/ui/Icon.astro';
+import { services } from '@/data/services';
+import { siteConfig } from '@/data/site-config';
+
+const principles = [
+  {
+    title: 'Ingeniería aplicada',
+    body: 'Cada proyecto parte de un problema concreto y se evalúa por su funcionamiento en condiciones reales, no por su complejidad.',
+  },
+  {
+    title: 'Integración de disciplinas',
+    body: 'Muchos problemas requieren combinar software, datos, electrónica y comunicaciones. ADROX trabaja precisamente en esa intersección.',
+  },
+  {
+    title: 'Transparencia técnica',
+    body: 'Comunicamos con claridad qué está terminado, qué es un prototipo y qué sigue en investigación.',
+  },
+  {
+    title: 'Soluciones que crecen',
+    body: 'Diseñamos arquitecturas modulares y documentadas para que cada solución pueda mantenerse y ampliarse.',
+  },
+];
+---
+
+<BaseLayout
+  title="Nosotros"
+  description="ADROX es una iniciativa tecnológica centrada en ingeniería aplicada, innovación y resolución de problemas, que integra distintas disciplinas de la ingeniería."
+>
+  <PageHeader
+    eyebrow="Nosotros"
+    title="Ingeniería aplicada para resolver problemas reales."
+    lead={siteConfig.valueProposition}
+    breadcrumbs={[{ label: 'Inicio', href: '/' }, { label: 'Nosotros' }]}
+  />
+
+  <section class="py-20 lg:py-28" aria-labelledby="iniciativa-title">
+    <div class="container-site grid gap-12 lg:grid-cols-12 lg:gap-10">
+      <div class="lg:col-span-5">
+        <SectionHeading id="iniciativa-title" eyebrow="La iniciativa" title="Qué es ADROX" />
+      </div>
+      <div class="space-y-5 text-[1.1rem] leading-relaxed text-navy-700 lg:col-span-7" data-reveal>
+        <p>
+          ADROX es una iniciativa tecnológica en construcción, enfocada en la ingeniería digital y el desarrollo de
+          soluciones tecnológicas para problemas empresariales, operativos e industriales.
+        </p>
+        <p class="text-navy-500">
+          Su propósito es integrar distintas disciplinas de la ingeniería, desde el software y la inteligencia artificial
+          hasta la electrónica, el IoT y las telecomunicaciones, para crear soluciones prácticas que respondan a
+          necesidades concretas de empresas, emprendedores e instituciones en {siteConfig.region}.
+        </p>
+        <p class="text-navy-500">
+          Los proyectos del portafolio reflejan este enfoque: desarrollos propios, académicos y experimentales que
+          documentamos con transparencia, indicando siempre su estado real.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="border-y border-navy/10 bg-ivory-50 py-20 lg:py-28" aria-labelledby="principios-title">
+    <div class="container-site">
+      <SectionHeading id="principios-title" eyebrow="Principios" title="Cómo entendemos la ingeniería." />
+      <ul class="mt-14 grid gap-px overflow-hidden rounded-[4px] border border-navy/10 bg-navy/10 sm:grid-cols-2 lg:grid-cols-4">
+        {
+          principles.map((p, i) => (
+            <li class="bg-ivory p-8" data-reveal style={`--reveal-delay: ${i * 70}ms`}>
+              <p class="font-mono text-xs text-bronze-700">0{i + 1}</p>
+              <h3 class="mt-3 text-[1.15rem] font-medium">{p.title}</h3>
+              <p class="mt-3 leading-relaxed text-navy-500">{p.body}</p>
+            </li>
+          ))
+        }
+      </ul>
+
+      <div class="mt-14" data-reveal>
+        <p class="eyebrow text-navy-300">Disciplinas que integramos</p>
+        <ul class="mt-5 flex flex-wrap gap-3">
+          {
+            services.map((s) => (
+              <li>
+                <a href={`/servicios#${s.id}`} class="inline-flex items-center gap-2.5 rounded-[3px] border border-navy/15 bg-white px-4 py-2.5 text-sm font-medium transition-colors hover:border-navy">
+                  <Icon name={s.icon} size={16} class="text-teal-700" />
+                  {s.title}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-20 lg:py-28" aria-labelledby="fundador-title">
+    <div class="container-site">
+      <SectionHeading id="fundador-title" eyebrow="Fundador" title="Quién impulsa ADROX" />
+      <div class="mt-12" data-reveal>
+        <FounderProfile />
+      </div>
+    </div>
+  </section>
+
+  <div class="border-t border-navy/10 bg-ivory-200/40">
+    <Technologies index="" />
+  </div>
+
+  <CallToAction />
+</BaseLayout>

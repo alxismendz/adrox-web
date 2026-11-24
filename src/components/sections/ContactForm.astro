@@ -1,0 +1,301 @@
+---
+/**
+ * Formulario de contacto.
+ * Modos (según src/data/site-config.ts):
+ *  - "endpoint": envía por POST al servicio configurado en contact.formEndpoint.
+ *                Solo muestra éxito si el servidor responde 2xx.
+ *  - "mailto":   abre el cliente de correo del visitante con el mensaje preparado.
+ *                No se afirma que el mensaje se haya enviado.
+ *  - "pending":  no hay canal configurado. Se valida el formulario y se informa
+ *                que el envío está pendiente de configuración.
+ */
+import Icon from '../ui/Icon.astro';
+import { siteConfig, isConfigured } from '@/data/site-config';
+import { services } from '@/data/services';
+
+const { email, formEndpoint } = siteConfig.contact;
+const mode = isConfigured(formEndpoint) ? 'endpoint' : isConfigured(email) ? 'mailto' : 'pending';
+
+const projectTypes = [
+  ...services.map((s) => `${s.title} — ${s.subtitle}`),
+  'Colaboración tecnológica o académica',
+  'Otro',
+];
+
+const input =
+  'mt-2 block w-full rounded-[3px] border border-navy/20 bg-white px-4 py-3 text-[0.98rem] text-navy placeholder:text-navy-300 transition-colors duration-200 hover:border-navy/40 focus:border-teal focus:outline-none focus:ring-2 focus:ring-teal/25 aria-[invalid=true]:border-red-700 aria-[invalid=true]:ring-red-700/15';
+const label = 'block text-sm font-medium text-navy';
+const error = 'mt-2 hidden text-sm text-red-800';
+---
+
+<form
+  class="relative"
+  novalidate
+  data-contact-form
+  data-mode={mode}
+  data-endpoint={mode === 'endpoint' ? formEndpoint : undefined}
+  data-email={isConfigured(email) ? email : undefined}
+  action={mode === 'endpoint' ? formEndpoint : undefined}
+  method="post"
+  aria-describedby={mode === 'pending' ? 'form-pending-note' : undefined}
+>
+  {
+    mode === 'pending' && (
+      <div id="form-pending-note" class="mb-8 flex gap-3 rounded-[3px] border border-bronze/40 bg-bronze-50 p-4 text-sm leading-relaxed text-navy-700">
+        <Icon name="info" size={18} class="mt-0.5 shrink-0 text-bronze-700" />
+        <p>
+          <strong class="font-medium">Canal de contacto pendiente de configuración.</strong> El formulario valida los datos,
+          pero todavía no envía mensajes. Para activarlo, define <code class="font-mono text-[0.85em]">contact.email</code> o
+          <code class="font-mono text-[0.85em]">contact.formEndpoint</code> en <code class="font-mono text-[0.85em]">src/data/site-config.ts</code>.
+        </p>
+      </div>
+    )
+  }
+
+  <div
+    class="mb-6 hidden rounded-[3px] border border-red-800/30 bg-red-50 p-4 text-sm text-red-900"
+    role="alert"
+    tabindex="-1"
+    data-error-summary
+  >
+  </div>
+
+  <div class="grid gap-6 sm:grid-cols-2">
+    <div>
+      <label for="cf-name" class={label}>Nombre <span class="text-red-800" aria-hidden="true">*</span></label>
+      <input id="cf-name" name="nombre" type="text" autocomplete="name" required minlength="2" maxlength="100" class={input} aria-describedby="cf-name-error" />
+      <p id="cf-name-error" class={error} data-error-for="nombre"></p>
+    </div>
+    <div>
+      <label for="cf-email" class={label}>Correo electrónico <span class="text-red-800" aria-hidden="true">*</span></label>
+      <input id="cf-email" name="email" type="email" autocomplete="email" required maxlength="160" inputmode="email" class={input} aria-describedby="cf-email-error" />
+      <p id="cf-email-error" class={error} data-error-for="email"></p>
+    </div>
+    <div>
+      <label for="cf-company" class={label}>Empresa <span class="font-normal text-navy-300">(opcional)</span></label>
+      <input id="cf-company" name="empresa" type="text" autocomplete="organization" maxlength="120" class={input} aria-describedby="cf-company-error" />
+      <p id="cf-company-error" class={error} data-error-for="empresa"></p>
+    </div>
+    <div>
+      <label for="cf-type" class={label}>Tipo de proyecto <span class="text-red-800" aria-hidden="true">*</span></label>
+      <div class="relative">
+        <select id="cf-type" name="tipo" required class:list={[input, 'appearance-none pr-10']} aria-describedby="cf-type-error">
+          <option value="">Selecciona una opción</option>
+          {projectTypes.map((t) => <option value={t}>{t}</option>)}
+        </select>
+        <Icon name="chevron-down" size={18} class="pointer-events-none absolute top-1/2 right-3 mt-1 -translate-y-1/2 text-navy-500" />
+      </div>
+      <p id="cf-type-error" class={error} data-error-for="tipo"></p>
+    </div>
+    <div class="sm:col-span-2">
+      <label for="cf-message" class={label}>Descripción de la necesidad <span class="text-red-800" aria-hidden="true">*</span></label>
+      <textarea
+        id="cf-message"
+        name="mensaje"
+        rows="6"
+        required
+        minlength="20"
+        maxlength="2000"
+        class:list={[input, 'resize-y']}
+        aria-describedby="cf-message-hint cf-message-error"
+        placeholder="Describe el problema, el objetivo y cualquier restricción relevante (plazos, sistemas existentes, etc.)."
+      ></textarea>
+      <div class="mt-2 flex justify-between gap-4 text-xs text-navy-500">
+        <p id="cf-message-hint">Mínimo 20 caracteres.</p>
+        <p aria-hidden="true"><span data-char-count>0</span>/2000</p>
+      </div>
+      <p id="cf-message-error" class={error} data-error-for="mensaje"></p>
+    </div>
+  </div>
+
+  <!-- Campo trampa anti-spam: los usuarios no lo ven ni lo completan. -->
+  <div class="absolute -left-[9999px] h-px w-px overflow-hidden" aria-hidden="true">
+    <label for="cf-website">No completar este campo</label>
+    <input id="cf-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+  </div>
+
+  <div class="mt-8 flex flex-col-reverse gap-5 sm:flex-row sm:items-center sm:justify-between">
+    <p class="text-xs leading-relaxed text-navy-500 sm:max-w-sm">
+      Los campos marcados con <span class="text-red-800">*</span> son obligatorios. Usaremos tus datos únicamente para
+      responder a tu solicitud.
+    </p>
+    <button
+      type="submit"
+      class="group inline-flex h-13 shrink-0 items-center justify-center gap-2.5 rounded-[3px] bg-navy px-7 font-medium text-ivory-50 transition-colors duration-300 hover:bg-teal-700 disabled:cursor-wait disabled:opacity-60"
+      data-submit
+    >
+      <span data-submit-label>{mode === 'mailto' ? 'Preparar correo' : 'Enviar solicitud'}</span>
+      <Icon name="send" size={16} class="transition-transform duration-300 group-hover:translate-x-0.5" />
+    </button>
+  </div>
+
+  <div class="mt-6 hidden rounded-[3px] border p-4 text-sm leading-relaxed" role="status" aria-live="polite" data-form-status></div>
+</form>
+
+<script>
+  type Field = 'nombre' | 'email' | 'empresa' | 'tipo' | 'mensaje';
+  const EMAIL_RE = /^[^\s@<>()[\]\\,;:"]+@[^\s@<>()[\]\\,;:"]+\.[a-z]{2,}$/i;
+
+  /** Elimina caracteres de control y espacios sobrantes. */
+  const clean = (value: string) => value.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '').trim();
+
+  const validators: Record<Field, (v: string) => string> = {
+    nombre: (v) => (v.length < 2 ? 'Ingresa tu nombre (mínimo 2 caracteres).' : v.length > 100 ? 'El nombre es demasiado largo.' : ''),
+    email: (v) => (!v ? 'Ingresa tu correo electrónico.' : !EMAIL_RE.test(v) ? 'Ingresa un correo electrónico válido, por ejemplo nombre@empresa.com.' : ''),
+    empresa: (v) => (v.length > 120 ? 'El nombre de la empresa es demasiado largo.' : ''),
+    tipo: (v) => (!v ? 'Selecciona el tipo de proyecto.' : ''),
+    mensaje: (v) => (v.length < 20 ? 'Describe tu necesidad con al menos 20 caracteres.' : v.length > 2000 ? 'La descripción supera los 2000 caracteres.' : ''),
+  };
+  const fields = Object.keys(validators) as Field[];
+
+  document.querySelectorAll<HTMLFormElement>('[data-contact-form]').forEach((form) => {
+    const mode = form.dataset.mode as 'endpoint' | 'mailto' | 'pending';
+    const statusEl = form.querySelector<HTMLElement>('[data-form-status]')!;
+    const summaryEl = form.querySelector<HTMLElement>('[data-error-summary]')!;
+    const submit = form.querySelector<HTMLButtonElement>('[data-submit]')!;
+    const submitLabel = form.querySelector<HTMLElement>('[data-submit-label]')!;
+    const counter = form.querySelector<HTMLElement>('[data-char-count]');
+    const control = (name: Field) => form.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+    const touched = new Set<Field>();
+
+    const setStatus = (tone: 'success' | 'error' | 'info' | null, message = '', linkHref?: string, linkText?: string) => {
+      statusEl.className = 'mt-6 rounded-[3px] border p-4 text-sm leading-relaxed';
+      statusEl.replaceChildren();
+      if (!tone) {
+        statusEl.classList.add('hidden');
+        return;
+      }
+      const tones = {
+        success: ['border-teal/40', 'bg-teal-50', 'text-navy'],
+        error: ['border-red-800/30', 'bg-red-50', 'text-red-900'],
+        info: ['border-bronze/40', 'bg-bronze-50', 'text-navy-700'],
+      };
+      statusEl.classList.add(...tones[tone]);
+      statusEl.append(document.createTextNode(message));
+      if (linkHref && linkText) {
+        const a = document.createElement('a');
+        a.href = linkHref;
+        a.textContent = linkText;
+        a.className = 'font-medium underline underline-offset-2';
+        statusEl.append(' ', a, '.');
+      }
+    };
+
+    const validateField = (name: Field): string => {
+      const el = control(name);
+      const message = validators[name](clean(el.value));
+      const errorEl = form.querySelector<HTMLElement>(`[data-error-for="${name}"]`);
+      el.setAttribute('aria-invalid', message ? 'true' : 'false');
+      if (errorEl) {
+        errorEl.textContent = message;
+        errorEl.classList.toggle('hidden', !message);
+      }
+      return message;
+    };
+
+    fields.forEach((name) => {
+      const el = control(name);
+      el.addEventListener('blur', () => {
+        touched.add(name);
+        validateField(name);
+      });
+      el.addEventListener('input', () => {
+        if (touched.has(name)) validateField(name);
+      });
+    });
+
+    const message = control('mensaje');
+    message.addEventListener('input', () => {
+      if (counter) counter.textContent = String(message.value.length);
+    });
+
+    const values = () =>
+      Object.fromEntries(fields.map((f) => [f, clean(control(f).value)])) as Record<Field, string>;
+
+    const buildMailto = (email: string, v: Record<Field, string>) => {
+      const subject = `Solicitud de proyecto: ${v.tipo}`;
+      const body = [
+        `Nombre: ${v.nombre}`,
+        `Correo: ${v.email}`,
+        `Empresa: ${v.empresa || 'No indicada'}`,
+        `Tipo de proyecto: ${v.tipo}`,
+        '',
+        'Descripción de la necesidad:',
+        v.mensaje,
+      ].join('\n');
+      return `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    };
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      setStatus(null);
+      fields.forEach((f) => touched.add(f));
+      const errors = fields.map((f) => [f, validateField(f)] as const).filter(([, m]) => m);
+
+      if (errors.length) {
+        summaryEl.textContent = `Revisa ${errors.length === 1 ? 'el campo marcado' : `los ${errors.length} campos marcados`} antes de continuar.`;
+        summaryEl.classList.remove('hidden');
+        control(errors[0]![0]).focus();
+        return;
+      }
+      summaryEl.classList.add('hidden');
+
+      // Campo trampa completado: se descarta silenciosamente sin simular éxito.
+      const honeypot = form.elements.namedItem('website') as HTMLInputElement | null;
+      if (honeypot?.value) return;
+
+      const v = values();
+      const email = form.dataset.email;
+
+      if (mode === 'pending') {
+        setStatus(
+          'info',
+          'Los datos son válidos, pero el envío aún no está disponible: el canal de contacto de ADROX está pendiente de configuración. Tu mensaje no se ha enviado.',
+        );
+        return;
+      }
+
+      if (mode === 'mailto' && email) {
+        window.location.href = buildMailto(email, v);
+        setStatus(
+          'info',
+          'Abrimos tu aplicación de correo con el mensaje preparado. El mensaje se enviará cuando lo confirmes desde tu correo. Si no se abrió ninguna aplicación, escríbenos directamente a',
+          `mailto:${email}`,
+          email,
+        );
+        return;
+      }
+
+      // Modo endpoint
+      const endpoint = form.dataset.endpoint;
+      if (!endpoint) return;
+      submit.disabled = true;
+      const original = submitLabel.textContent;
+      submitLabel.textContent = 'Enviando…';
+      try {
+        const data = new FormData();
+        fields.forEach((f) => data.append(f, v[f]));
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          body: data,
+          headers: { Accept: 'application/json' },
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        form.reset();
+        if (counter) counter.textContent = '0';
+        touched.clear();
+        fields.forEach((f) => control(f).removeAttribute('aria-invalid'));
+        setStatus('success', 'Recibimos tu solicitud. Te responderemos al correo que indicaste.');
+      } catch {
+        if (email) {
+          setStatus('error', 'No pudimos enviar el formulario. Tu mensaje no se ha enviado. Puedes intentarlo de nuevo o escribirnos a', `mailto:${email}`, email);
+        } else {
+          setStatus('error', 'No pudimos enviar el formulario. Tu mensaje no se ha enviado. Inténtalo de nuevo en unos minutos.');
+        }
+      } finally {
+        submit.disabled = false;
+        submitLabel.textContent = original;
+      }
+    });
+  });
+</script>

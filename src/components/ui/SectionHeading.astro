@@ -1,0 +1,37 @@
+---
+interface Props {
+  eyebrow?: string;
+  index?: string;
+  title: string;
+  lead?: string;
+  tone?: 'dark' | 'light';
+  align?: 'left' | 'split';
+  as?: 'h1' | 'h2';
+  id?: string;
+}
+const { eyebrow, index, title, lead, tone = 'dark', align = 'left', as: Tag = 'h2', id } = Astro.props;
+const eyebrowColor = tone === 'dark' ? 'text-teal-700' : 'text-teal-300';
+const leadColor = tone === 'dark' ? 'text-navy-500' : 'text-ivory/70';
+---
+
+<header
+  class:list={[
+    'grid gap-6',
+    align === 'split' ? 'lg:grid-cols-12 lg:items-end lg:gap-10' : 'max-w-3xl',
+  ]}
+  data-reveal
+>
+  <div class:list={[align === 'split' && 'lg:col-span-7']}>
+    {
+      (eyebrow || index) && (
+        <p class:list={['eyebrow mb-5 flex items-center gap-3', eyebrowColor]}>
+          {index && <span>{index}</span>}
+          {index && <span class="h-px w-8 bg-current opacity-40" aria-hidden="true" />}
+          {eyebrow && <span>{eyebrow}</span>}
+        </p>
+      )
+    }
+    <Tag id={id} class="text-[2rem] leading-[1.1] font-medium sm:text-[2.6rem] lg:text-[3rem]">{title}</Tag>
+  </div>
+  {lead && <p class:list={['text-[1.05rem] leading-relaxed', leadColor, align === 'split' && 'lg:col-span-5']}>{lead}</p>}
+</header>

@@ -1,0 +1,118 @@
+---
+/**
+ * Composición abstracta del hero: un plano técnico con nodos conectados que
+ * representan las cuatro áreas de ADROX. SVG en línea (sin peticiones extra).
+ */
+---
+
+<figure class="hero-visual relative aspect-[14/15] w-full overflow-hidden rounded-[4px] bg-navy" aria-hidden="true">
+  <svg viewBox="0 0 560 600" class="absolute inset-0 size-full" preserveAspectRatio="xMidYMid slice" role="presentation">
+    <defs>
+      <pattern id="hv-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+        <path d="M40 0H0V40" fill="none" stroke="#F3F1EB" stroke-opacity="0.07" stroke-width="1"></path>
+      </pattern>
+      <pattern id="hv-grid-fine" width="8" height="8" patternUnits="userSpaceOnUse">
+        <circle cx="1" cy="1" r="0.8" fill="#F3F1EB" fill-opacity="0.12"></circle>
+      </pattern>
+    </defs>
+
+    <rect width="560" height="600" fill="url(#hv-grid)"></rect>
+    <rect x="320" y="360" width="200" height="200" fill="url(#hv-grid-fine)"></rect>
+
+    <!-- Arcos concéntricos -->
+    <g fill="none" stroke="#F3F1EB" stroke-opacity="0.14">
+      <circle cx="420" cy="180" r="110"></circle>
+      <circle cx="420" cy="180" r="190"></circle>
+      <circle cx="420" cy="180" r="270" stroke-dasharray="2 6"></circle>
+    </g>
+    <path class="hv-arc" d="M230 180 A190 190 0 0 1 420 -10" fill="none" stroke="#B68A58" stroke-width="2"></path>
+
+    <!-- Eje diagonal -->
+    <path d="M40 560 L520 80" stroke="#B68A58" stroke-opacity="0.35" stroke-width="1"></path>
+
+    <!-- Conexiones -->
+    <g class="hv-links" fill="none" stroke="#F3F1EB" stroke-opacity="0.55" stroke-width="1.25">
+      <path d="M140 420 L300 300"></path>
+      <path d="M300 300 L420 180"></path>
+      <path d="M220 170 L300 300"></path>
+      <path d="M300 300 L390 470"></path>
+      <path d="M220 170 L420 180"></path>
+      <path d="M140 420 L390 470"></path>
+    </g>
+
+    <!-- Nodos -->
+    <g fill="#F3F1EB">
+      <rect x="135" y="415" width="10" height="10"></rect>
+      <rect x="215" y="165" width="10" height="10"></rect>
+      <rect x="385" y="465" width="10" height="10"></rect>
+      <rect x="294" y="294" width="12" height="12" fill="#17253B" stroke="#F3F1EB" stroke-width="1.5"></rect>
+    </g>
+    <circle class="hv-pulse" cx="420" cy="180" r="22" fill="none" stroke="#238C91" stroke-width="1.5"></circle>
+    <circle cx="420" cy="180" r="8" fill="#238C91"></circle>
+
+    <!-- Etiquetas -->
+    <g font-family="IBM Plex Mono, ui-monospace, monospace" font-size="11" letter-spacing="1.6" fill="#F3F1EB">
+      <text x="120" y="452" fill-opacity="0.85">01 SOFTWARE</text>
+      <text x="168" y="150" fill-opacity="0.85">02 AI &amp; DATA</text>
+      <text x="330" y="502" fill-opacity="0.85">03 SMART SYSTEMS</text>
+      <text x="438" y="214" fill-opacity="0.85">04 DIGITAL</text>
+      <text x="40" y="52" fill-opacity="0.45" font-size="10">ADROX / SYSTEM ARCHITECTURE</text>
+      <text x="40" y="68" fill-opacity="0.3" font-size="10">REV. 01</text>
+    </g>
+
+    <!-- Señal -->
+    <polyline
+      class="hv-signal"
+      points="40,320 60,320 70,296 82,344 94,284 106,356 118,302 130,330 142,320 190,320"
+      fill="none"
+      stroke="#238C91"
+      stroke-width="1.5"></polyline>
+
+    <!-- Marcas de esquina -->
+    <g stroke="#F3F1EB" stroke-opacity="0.5" stroke-width="1" fill="none">
+      <path d="M24 24h18M24 24v18"></path>
+      <path d="M536 576h-18M536 576v-18"></path>
+    </g>
+  </svg>
+</figure>
+
+<style>
+  @media (prefers-reduced-motion: no-preference) {
+    .hv-links path {
+      stroke-dasharray: 400;
+      stroke-dashoffset: 400;
+      animation: hv-draw 1.8s var(--ease-out-soft) forwards;
+    }
+    .hv-links path:nth-child(2) { animation-delay: 0.15s; }
+    .hv-links path:nth-child(3) { animation-delay: 0.3s; }
+    .hv-links path:nth-child(4) { animation-delay: 0.45s; }
+    .hv-links path:nth-child(5) { animation-delay: 0.6s; }
+    .hv-links path:nth-child(6) { animation-delay: 0.75s; }
+
+    .hv-arc {
+      stroke-dasharray: 320;
+      stroke-dashoffset: 320;
+      animation: hv-draw 2.4s 0.4s var(--ease-out-soft) forwards;
+    }
+
+    .hv-pulse {
+      transform-origin: 420px 180px;
+      animation: hv-pulse 3.6s ease-out infinite;
+    }
+
+    .hv-signal {
+      stroke-dasharray: 260;
+      stroke-dashoffset: 260;
+      animation: hv-draw 2s 0.9s ease-out forwards;
+    }
+  }
+
+  @keyframes hv-draw {
+    to { stroke-dashoffset: 0; }
+  }
+
+  @keyframes hv-pulse {
+    0% { opacity: 0.9; transform: scale(0.6); }
+    70%, 100% { opacity: 0; transform: scale(1.8); }
+  }
+</style>

@@ -1,0 +1,261 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ProjectVisual from '@/components/projects/ProjectVisual.astro';
+import ArchitectureDiagram from '@/components/projects/ArchitectureDiagram.astro';
+import StatusBadge from '@/components/ui/StatusBadge.astro';
+import Tag from '@/components/ui/Tag.astro';
+import Icon from '@/components/ui/Icon.astro';
+import PendingNote from '@/components/ui/PendingNote.astro';
+import CallToAction from '@/components/sections/CallToAction.astro';
+import { projects, type Project } from '@/data/projects';
+import { isConfigured } from '@/data/site-config';
+import { absoluteUrl } from '@/lib/url';
+
+export function getStaticPaths() {
+  return projects.map((project, i) => ({
+    params: { slug: project.slug },
+    props: {
+      project,
+      prev: projects[(i - 1 + projects.length) % projects.length],
+      next: projects[(i + 1) % projects.length],
+    },
+  }));
+}
+
+interface Props {
+  project: Project;
+  prev: Project;
+  next: Project;
+}
+const { project, prev, next } = Astro.props;
+
+const sections = [
+  { id: 'problema', label: 'Problema' },
+  { id: 'objetivo', label: 'Objetivo' },
+  { id: 'solucion', label: 'Solución propuesta' },
+  ...(project.scope ? [{ id: 'alcance', label: project.scope.title }] : []),
+  { id: 'arquitectura', label: 'Arquitectura' },
+  { id: 'tecnologias', label: 'Tecnologías' },
+  ...(project.notes?.length ? [{ id: 'aclaraciones', label: 'Aclaraciones' }] : []),
+  { id: 'evidencia', label: 'Evidencia visual' },
+  { id: 'estado', label: 'Estado y enlaces' },
+];
+
+const url = absoluteUrl(`/proyectos/${project.slug}`, Astro.site);
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Inicio', item: absoluteUrl('/', Astro.site) },
+      { '@type': 'ListItem', position: 2, name: 'Proyectos', item: absoluteUrl('/proyectos', Astro.site) },
+      { '@type': 'ListItem', position: 3, name: project.name, item: url },
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'CreativeWork',
+    name: project.name,
+    description: project.description,
+    url,
+    genre: project.categoryLabel,
+    keywords: project.technologies.join(', '),
+    creativeWorkStatus: project.statusLabel,
+    inLanguage: 'es',
+    creator: { '@id': `${absoluteUrl('/', Astro.site)}#organization` },
+    ...(isConfigured(project.repositoryUrl) ? { codeRepository: project.repositoryUrl } : {}),
+  },
+];
+---
+
+<BaseLayout title={`${project.name} — Caso de estudio`} description={project.summary} type="article" jsonLd={jsonLd}>
+  <article aria-labelledby="project-title">
+    <header class="relative overflow-hidden pt-32 pb-14 lg:pt-40">
+      <div class="bg-blueprint pointer-events-none absolute inset-0 [mask-image:linear-gradient(to_bottom,black,transparent)]" aria-hidden="true"></div>
+      <div class="container-site relative">
+        <nav aria-label="Ruta de navegación" class="mb-8">
+          <ol class="flex flex-wrap items-center gap-2 text-sm text-navy-500">
+            <li><a href="/" class="link-underline hover:text-navy">Inicio</a></li>
+            <li aria-hidden="true" class="text-navy-300">/</li>
+            <li><a href="/proyectos" class="link-underline hover:text-navy">Proyectos</a></li>
+            <li aria-hidden="true" class="text-navy-300">/</li>
+            <li aria-current="page" class="text-navy">{project.name}</li>
+          </ol>
+        </nav>
+        <div class="grid gap-10 lg:grid-cols-12 lg:items-end">
+          <div class="lg:col-span-8">
+            <p class="eyebrow text-teal-700" data-reveal>Caso de estudio · {project.categoryLabel}</p>
+            <h1 id="project-title" class="mt-5 text-[2.6rem] leading-[1.04] font-medium tracking-[-0.03em] sm:text-[3.4rem] lg:text-[4rem]" data-reveal>
+              {project.name}
+            </h1>
+            <p class="mt-6 max-w-2xl text-[1.12rem] leading-relaxed text-navy-500" data-reveal>{project.description}</p>
+          </div>
+          <dl class="grid grid-cols-2 gap-x-6 gap-y-5 border-t border-navy/12 pt-6 text-sm lg:col-span-4 lg:grid-cols-1" data-reveal>
+            <div>
+              <dt class="eyebrow text-[0.68rem] text-navy-300">Estado</dt>
+              <dd class="mt-2"><StatusBadge status={project.status} label={project.statusLabel} /></dd>
+            </div>
+            <div>
+              <dt class="eyebrow text-[0.68rem] text-navy-300">Categoría</dt>
+              <dd class="mt-2 font-medium">{project.categoryLabel}</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </header>
+
+    <div class="container-site">
+      <ProjectVisual variant={project.visual} class="aspect-[16/7] rounded-[4px] max-sm:aspect-[4/3]" />
+      <p class="mt-3 text-xs text-navy-500">Ilustración abstracta de referencia. No representa una captura del proyecto.</p>
+    </div>
+
+    <div class="container-site grid gap-12 py-16 lg:grid-cols-12 lg:gap-10 lg:py-24">
+      <aside class="lg:col-span-3">
+        <nav aria-label="Contenido del caso de estudio" class="lg:sticky lg:top-28">
+          <p class="eyebrow text-navy-300">Contenido</p>
+          <ol class="mt-4 space-y-1 border-l border-navy/12">
+            {
+              sections.map((s) => (
+                <li>
+                  <a href={`#${s.id}`} class="-ml-px block border-l border-transparent py-1.5 pl-4 text-sm text-navy-500 transition-colors hover:border-navy hover:text-navy" data-toc-link>
+                    {s.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ol>
+        </nav>
+      </aside>
+
+      <div class="space-y-16 lg:col-span-8 lg:col-start-5">
+        <section id="problema" class="scroll-mt-28" aria-labelledby="h-problema">
+          <h2 id="h-problema" class="eyebrow text-teal-700">Problema</h2>
+          {project.problem ? <p class="mt-4 text-[1.2rem] leading-relaxed text-navy-700">{project.problem}</p> : <PendingNote class="mt-4">Problema pendiente de documentar.</PendingNote>}
+        </section>
+
+        <section id="objetivo" class="scroll-mt-28" aria-labelledby="h-objetivo">
+          <h2 id="h-objetivo" class="eyebrow text-teal-700">Objetivo</h2>
+          {project.objective ? <p class="mt-4 text-[1.2rem] leading-relaxed text-navy-700">{project.objective}</p> : <PendingNote class="mt-4">Objetivo pendiente de documentar.</PendingNote>}
+        </section>
+
+        <section id="solucion" class="scroll-mt-28" aria-labelledby="h-solucion">
+          <h2 id="h-solucion" class="eyebrow text-teal-700">Solución propuesta</h2>
+          {project.solution ? <p class="mt-4 text-[1.2rem] leading-relaxed text-navy-700">{project.solution}</p> : <PendingNote class="mt-4">Solución pendiente de documentar.</PendingNote>}
+        </section>
+
+        {
+          project.scope && (
+            <section id="alcance" class="scroll-mt-28" aria-labelledby="h-alcance">
+              <h2 id="h-alcance" class="eyebrow text-teal-700">{project.scope.title}</h2>
+              <ul class="mt-5 grid gap-px overflow-hidden rounded-[4px] border border-navy/10 bg-navy/10 sm:grid-cols-2">
+                {project.scope.items.map((item, i) => (
+                  <li class="flex items-center gap-4 bg-ivory-50 px-5 py-4">
+                    <span class="font-mono text-xs text-bronze-700">{String(i + 1).padStart(2, '0')}</span>
+                    <span class="font-medium">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )
+        }
+
+        <section id="arquitectura" class="scroll-mt-28" aria-labelledby="h-arquitectura">
+          <h2 id="h-arquitectura" class="eyebrow text-teal-700">Arquitectura</h2>
+          <div class="mt-5">
+            {project.architecture ? <ArchitectureDiagram layers={project.architecture.layers} note={project.architecture.note} /> : <PendingNote>Arquitectura pendiente de documentar.</PendingNote>}
+          </div>
+        </section>
+
+        <section id="tecnologias" class="scroll-mt-28" aria-labelledby="h-tecnologias">
+          <h2 id="h-tecnologias" class="eyebrow text-teal-700">Tecnologías y conceptos</h2>
+          <ul class="mt-5 flex flex-wrap gap-2">
+            {project.technologies.map((t) => <li><Tag class="px-3 py-2 text-[0.8rem]">{t}</Tag></li>)}
+          </ul>
+        </section>
+
+        {
+          project.notes?.length ? (
+            <section id="aclaraciones" class="scroll-mt-28" aria-labelledby="h-aclaraciones">
+              <h2 id="h-aclaraciones" class="eyebrow text-teal-700">Aclaraciones</h2>
+              <div class="mt-5 grid gap-4">
+                {project.notes.map((note) => (
+                  <div class="rounded-[4px] border-l-2 border-bronze bg-bronze-50/60 p-6">
+                    <h3 class="font-medium">{note.title}</h3>
+                    <p class="mt-2 leading-relaxed text-navy-700">{note.body}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          ) : null
+        }
+
+        <section id="evidencia" class="scroll-mt-28" aria-labelledby="h-evidencia">
+          <h2 id="h-evidencia" class="eyebrow text-teal-700">Evidencia visual</h2>
+          {
+            project.evidence.length > 0 ? (
+              <div class="mt-5 grid gap-6 sm:grid-cols-2">
+                {project.evidence.map((item) => (
+                  <figure>
+                    <img src={item.src} alt={item.alt} width={item.width} height={item.height} loading="lazy" decoding="async" class="w-full rounded-[4px] border border-navy/10 bg-white" />
+                    {item.caption && <figcaption class="mt-2 text-sm text-navy-500">{item.caption}</figcaption>}
+                  </figure>
+                ))}
+              </div>
+            ) : (
+              <div class="mt-5 flex flex-col items-center justify-center gap-3 rounded-[4px] border border-dashed border-navy/20 bg-ivory-50/70 px-6 py-14 text-center">
+                <Icon name="image" size={26} class="text-navy-300" />
+                <p class="font-medium">Evidencia visual pendiente de publicación</p>
+                <p class="max-w-md text-sm text-navy-500">Aquí se mostrarán capturas, fotografías del prototipo, diagramas o videos del proyecto cuando estén disponibles.</p>
+              </div>
+            )
+          }
+        </section>
+
+        <section id="estado" class="scroll-mt-28" aria-labelledby="h-estado">
+          <h2 id="h-estado" class="eyebrow text-teal-700">Estado y enlaces</h2>
+          <div class="mt-5 grid gap-4 sm:grid-cols-3">
+            <div class="rounded-[4px] border border-navy/10 bg-ivory-50 p-5">
+              <p class="text-sm text-navy-500">Estado actual</p>
+              <p class="mt-2 font-medium">{project.statusLabel}</p>
+            </div>
+            <div class="rounded-[4px] border border-navy/10 bg-ivory-50 p-5">
+              <p class="text-sm text-navy-500">Repositorio</p>
+              {isConfigured(project.repositoryUrl) ? (
+                <a href={project.repositoryUrl} target="_blank" rel="noopener noreferrer" class="mt-2 inline-flex items-center gap-1.5 font-medium text-teal-700 hover:underline">
+                  Ver repositorio <Icon name="external" size={14} /><span class="sr-only">(se abre en una pestaña nueva)</span>
+                </a>
+              ) : (
+                <p class="mt-2 text-navy-500">No disponible públicamente</p>
+              )}
+            </div>
+            <div class="rounded-[4px] border border-navy/10 bg-ivory-50 p-5">
+              <p class="text-sm text-navy-500">Demostración</p>
+              {isConfigured(project.demoUrl) ? (
+                <a href={project.demoUrl} target="_blank" rel="noopener noreferrer" class="mt-2 inline-flex items-center gap-1.5 font-medium text-teal-700 hover:underline">
+                  Ver demostración <Icon name="external" size={14} /><span class="sr-only">(se abre en una pestaña nueva)</span>
+                </a>
+              ) : (
+                <p class="mt-2 text-navy-500">No disponible públicamente</p>
+              )}
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <nav aria-label="Otros proyectos" class="border-t border-navy/10">
+      <div class="container-site grid sm:grid-cols-2">
+        <a href={`/proyectos/${prev.slug}`} class="group border-b border-navy/10 py-10 sm:border-r sm:border-b-0 sm:pr-8">
+          <span class="eyebrow text-navy-300">Proyecto anterior</span>
+          <span class="mt-3 block text-[1.4rem] font-medium transition-colors group-hover:text-teal-700">{prev.name}</span>
+        </a>
+        <a href={`/proyectos/${next.slug}`} class="group py-10 sm:pl-8 sm:text-right">
+          <span class="eyebrow text-navy-300">Siguiente proyecto</span>
+          <span class="mt-3 block text-[1.4rem] font-medium transition-colors group-hover:text-teal-700">{next.name}</span>
+        </a>
+      </div>
+    </nav>
+  </article>
+
+  <CallToAction title="¿Te interesa un desarrollo similar?" text="Cuéntanos tu contexto y evaluaremos cómo adaptar este tipo de solución a tu necesidad." />
+</BaseLayout>

@@ -1,0 +1,124 @@
+---
+import Logo from '../ui/Logo.astro';
+import Icon from '../ui/Icon.astro';
+import { mainNav, primaryCta } from '@/data/navigation';
+import { services } from '@/data/services';
+import { siteConfig, activeSocialLinks, isConfigured } from '@/data/site-config';
+
+const social = activeSocialLinks();
+const { email, phone } = siteConfig.contact;
+---
+
+<footer class="on-dark relative overflow-hidden bg-navy-950 text-ivory">
+  <div class="bg-blueprint-dark pointer-events-none absolute inset-0 opacity-60" aria-hidden="true"></div>
+  <div class="container-site relative">
+    <div class="grid gap-12 border-b border-ivory/10 py-16 lg:grid-cols-12 lg:gap-10 lg:py-20">
+      <div class="lg:col-span-4">
+        <a href="/" aria-label="ADROX, ir al inicio" class="inline-block">
+          <Logo tone="light" />
+        </a>
+        <p class="mt-6 max-w-sm text-[0.95rem] leading-relaxed text-ivory/65">
+          Iniciativa de ingeniería digital orientada a desarrollar soluciones tecnológicas para problemas
+          empresariales, operativos e industriales en {siteConfig.region}.
+        </p>
+        <a
+          href={primaryCta.href}
+          class="group mt-8 inline-flex items-center gap-2 text-[0.95rem] font-medium text-bronze-300 hover:text-ivory"
+        >
+          <span class="link-underline">{primaryCta.label}</span>
+          <Icon name="arrow-right" size={16} class="transition-transform duration-300 group-hover:translate-x-0.5" />
+        </a>
+      </div>
+
+      <nav aria-label="Navegación del pie de página" class="lg:col-span-2 lg:col-start-6">
+        <h2 class="eyebrow text-ivory/45">Navegación</h2>
+        <ul class="mt-5 space-y-3">
+          {
+            mainNav.map((item) => (
+              <li>
+                <a href={item.href} class="link-underline text-[0.95rem] text-ivory/80 hover:text-ivory">
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <div class="lg:col-span-3">
+        <h2 class="eyebrow text-ivory/45">Servicios</h2>
+        <ul class="mt-5 space-y-3">
+          {
+            services.map((service) => (
+              <li>
+                <a href={`/servicios#${service.id}`} class="link-underline text-[0.95rem] text-ivory/80 hover:text-ivory">
+                  {service.title}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div class="lg:col-span-2">
+        <h2 class="eyebrow text-ivory/45">Contacto</h2>
+        <ul class="mt-5 space-y-3 text-[0.95rem]">
+          {
+            isConfigured(email) && (
+              <li>
+                <a href={`mailto:${email}`} class="link-underline break-all text-ivory/80 hover:text-ivory">
+                  {email}
+                </a>
+              </li>
+            )
+          }
+          {
+            isConfigured(phone) && (
+              <li>
+                <a href={`tel:${phone.replace(/\s+/g, '')}`} class="link-underline text-ivory/80 hover:text-ivory">
+                  {phone}
+                </a>
+              </li>
+            )
+          }
+          <li>
+            <a href="/contacto" class="link-underline text-ivory/80 hover:text-ivory">Formulario de contacto</a>
+          </li>
+          <li class="text-ivory/50">{siteConfig.region}</li>
+        </ul>
+        {
+          social.length > 0 && (
+            <ul class="mt-6 flex gap-2" aria-label="Redes sociales">
+              {social.map((s) => (
+                <li>
+                  <a
+                    href={s.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex size-10 items-center justify-center rounded-[3px] border border-ivory/15 text-ivory/75 transition-colors hover:border-ivory/50 hover:text-ivory"
+                  >
+                    <Icon name={s.icon} size={18} label={`${s.label} de ADROX (se abre en una pestaña nueva)`} />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-3 py-8 text-[0.82rem] text-ivory/50 sm:flex-row sm:items-center sm:justify-between">
+      <p>
+        © <span data-current-year>{new Date().getFullYear()}</span>{' '}{siteConfig.legalName}. Todos los derechos reservados.
+      </p>
+      <p class="font-mono text-[0.72rem] tracking-[0.14em] uppercase">Ingeniería digital · {siteConfig.region}</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Año dinámico: se actualiza en el navegador aunque el HTML se haya generado antes.
+  document.querySelectorAll('[data-current-year]').forEach((el) => {
+    el.textContent = String(new Date().getFullYear());
+  });
+</script>

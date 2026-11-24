@@ -1,0 +1,183 @@
+---
+import Logo from '../ui/Logo.astro';
+import Icon from '../ui/Icon.astro';
+import NavLink from '../navigation/NavLink.astro';
+import MobileMenu from '../navigation/MobileMenu.astro';
+import { mainNav, primaryCta } from '@/data/navigation';
+import { isActive } from '@/lib/url';
+
+const path = Astro.url.pathname;
+---
+
+<header
+  class="group/header fixed inset-x-0 top-0 z-50 transition-[background-color,box-shadow,border-color] duration-500"
+  data-site-header
+>
+  <div
+    class="container-site flex h-20 items-center justify-between gap-6 transition-[height] duration-500 ease-(--ease-out-soft) group-data-[scrolled=true]/header:h-16"
+  >
+    <a href="/" class="relative z-50 -m-1 p-1" aria-label="ADROX, ir al inicio">
+      <Logo />
+    </a>
+
+    <nav aria-label="Navegación principal" class="hidden lg:block">
+      <ul class="flex items-center gap-9">
+        {
+          mainNav.map((item) => (
+            <li>
+              <NavLink href={item.href} current={isActive(path, item.href)}>
+                {item.label}
+              </NavLink>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="flex items-center gap-3">
+      <a
+        href={primaryCta.href}
+        class="group hidden h-10 items-center gap-2 rounded-[3px] bg-navy px-4 text-[0.85rem] font-medium text-ivory-50 transition-colors duration-300 hover:bg-teal-700 sm:inline-flex"
+      >
+        {primaryCta.label}
+        <Icon name="arrow-right" size={15} class="transition-transform duration-300 group-hover:translate-x-0.5" />
+      </a>
+      <button
+        type="button"
+        class="relative z-50 -mr-2 inline-flex size-11 items-center justify-center rounded-[3px] text-navy lg:hidden"
+        aria-controls="mobile-menu"
+        aria-expanded="false"
+        data-menu-toggle
+      >
+        <span class="sr-only" data-menu-label>Abrir menú</span>
+        <span data-icon-open><Icon name="menu" size={24} /></span>
+        <span data-icon-close class="hidden"><Icon name="close" size={24} /></span>
+      </button>
+    </div>
+  </div>
+</header>
+<!--
+  El menú móvil se renderiza FUERA de <header>: el header aplica backdrop-filter al
+  hacer scroll, y un ancestro con backdrop-filter/filter/transform convierte a los
+  hijos position:fixed en relativos a él (el menú quedaba con la altura del header).
+-->
+<MobileMenu />
+
+<style>
+  [data-site-header][data-scrolled='true'] {
+    background-color: rgb(243 241 235 / 0.88);
+    backdrop-filter: saturate(140%) blur(12px);
+    -webkit-backdrop-filter: saturate(140%) blur(12px);
+    box-shadow: 0 1px 0 rgb(23 37 59 / 0.08);
+  }
+  [data-site-header][data-menu-open='true'] {
+    background-color: var(--color-ivory);
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+</style>
+
+<script>
+  const header = document.querySelector<HTMLElement>('[data-site-header]');
+  const toggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+  const menu = document.querySelector<HTMLElement>('[data-mobile-menu]');
+  const label = document.querySelector<HTMLElement>('[data-menu-label]');
+  const iconOpen = document.querySelector<HTMLElement>('[data-icon-open]');
+  const iconClose = document.querySelector<HTMLElement>('[data-icon-close]');
+
+  let menuOpen = false;
+
+  if (header) {
+    const onScroll = () => {
+      // Con el menú abierto el body está fijado (scrollY = 0): no cambiar el estado.
+      if (menuOpen) return;
+      header.dataset.scrolled = window.scrollY > 12 ? 'true' : 'false';
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+
+  if (header && toggle && menu) {
+    const desktop = window.matchMedia('(min-width: 1024px)');
+    const body = document.body;
+    let lockedScrollY = 0;
+
+    // Bloqueo de scroll compatible con iOS Safari (overflow:hidden no basta allí).
+    const lockScroll = () => {
+      lockedScrollY = window.scrollY;
+      body.style.position = 'fixed';
+      body.style.top = `-${lockedScrollY}px`;
+      body.style.left = '0';
+      body.style.right = '0';
+      body.style.width = '100%';
+      document.documentElement.style.overflow = 'hidden';
+    };
+    const unlockScroll = () => {
+      body.style.position = '';
+      body.style.top = '';
+      body.style.left = '';
+      body.style.right = '';
+      body.style.width = '';
+      document.documentElement.style.overflow = '';
+      window.scrollTo({ top: lockedScrollY, behavior: 'instant' });
+    };
+
+    const setOpen = (open: boolean, restoreFocus = true) => {
+      if (open === menuOpen) return;
+      if (open) lockScroll();
+      menuOpen = open;
+      toggle.setAttribute('aria-expanded', String(open));
+      header.dataset.menuOpen = String(open);
+      menu.classList.toggle('hidden', !open);
+      menu.classList.toggle('flex', open);
+      iconOpen?.classList.toggle('hidden', open);
+      iconClose?.classList.toggle('hidden', !open);
+      if (label) label.textContent = open ? 'Cerrar menú' : 'Abrir menú';
+      if (!open) unlockScroll();
+      if (open) {
+        menu.scrollTop = 0;
+        menu.querySelector<HTMLAnchorElement>('a')?.focus();
+      } else if (restoreFocus) {
+        toggle.focus();
+      }
+    };
+
+    toggle.addEventListener('click', () => setOpen(!menuOpen));
+
+    document.addEventListener('keydown', (event) => {
+      if (!menuOpen) return;
+      if (event.key === 'Escape') {
+        setOpen(false);
+        return;
+      }
+      // Mantiene el foco dentro del menú abierto (botón de cierre + enlaces).
+      if (event.key !== 'Tab') return;
+      const focusables = [toggle, ...menu.querySelectorAll<HTMLElement>('a')];
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last?.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first?.focus();
+      } else if (!focusables.includes(document.activeElement as HTMLElement)) {
+        event.preventDefault();
+        first?.focus();
+      }
+    });
+
+    // Al elegir un enlace: cerrar, restaurar el scroll y dejar que el navegador navegue.
+    menu.addEventListener('click', (event) => {
+      if ((event.target as HTMLElement).closest('a')) setOpen(false, false);
+    });
+
+    desktop.addEventListener('change', (e) => {
+      if (e.matches) setOpen(false, false);
+    });
+
+    // Al volver con el botón "Atrás" (bfcache) el menú debe aparecer cerrado.
+    window.addEventListener('pageshow', () => setOpen(false, false));
+  }
+</script>

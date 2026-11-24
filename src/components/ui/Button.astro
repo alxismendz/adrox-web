@@ -1,0 +1,49 @@
+---
+import Icon from './Icon.astro';
+import type { IconName } from './icons';
+
+interface Props {
+  href: string;
+  variant?: 'primary' | 'secondary' | 'ghost' | 'light' | 'outline-light';
+  size?: 'md' | 'lg';
+  icon?: IconName;
+  external?: boolean;
+  class?: string;
+}
+
+const { href, variant = 'primary', size = 'md', icon = 'arrow-right', external = false, class: className } = Astro.props;
+
+const variants = {
+  primary: 'bg-navy text-ivory-50 hover:bg-teal-700 border border-navy hover:border-teal-700',
+  secondary: 'bg-transparent text-navy border border-navy/25 hover:border-navy hover:bg-navy/[0.03]',
+  ghost: 'bg-transparent text-navy px-0! border-transparent',
+  light: 'bg-ivory-50 text-navy border border-ivory-50 hover:bg-bronze-300 hover:border-bronze-300',
+  'outline-light': 'bg-transparent text-ivory border border-ivory/30 hover:border-ivory hover:bg-ivory/[0.04]',
+};
+const sizes = { md: 'h-11 px-5 text-sm', lg: 'h-13 px-7 text-[0.95rem]' };
+const externalAttrs = external ? { target: '_blank', rel: 'noopener noreferrer' } : {};
+---
+
+<a
+  href={href}
+  class:list={[
+    'group inline-flex items-center justify-center gap-2.5 whitespace-nowrap rounded-[3px] font-medium tracking-[0.01em] transition-colors duration-300',
+    variants[variant],
+    sizes[size],
+    className,
+  ]}
+  {...externalAttrs}
+>
+  <slot />
+  {
+    icon && (
+      <Icon
+        name={icon}
+        size={16}
+        strokeWidth={1.75}
+        class="transition-transform duration-300 ease-(--ease-out-soft) group-hover:translate-x-0.5"
+      />
+    )
+  }
+  {external && <span class="sr-only">(se abre en una pestaña nueva)</span>}
+</a>

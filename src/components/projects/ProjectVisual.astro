@@ -1,0 +1,185 @@
+---
+/**
+ * Ilustraciones abstractas por proyecto (SVG en línea).
+ * Se usan mientras no existan capturas o evidencias visuales reales, y no
+ * representan interfaces ni resultados del proyecto.
+ */
+import type { ProjectVisual } from '@/data/projects';
+
+interface Props {
+  variant: ProjectVisual;
+  class?: string;
+}
+const { variant, class: className } = Astro.props;
+
+const IV = '#F3F1EB';
+const TEAL = '#238C91';
+const BRONZE = '#B68A58';
+
+// Puntos de la variante "pose": esqueleto esquemático en posición de sentadilla.
+const pose = {
+  head: [214, 52],
+  neck: [210, 74],
+  shoulderL: [186, 82],
+  shoulderR: [232, 84],
+  elbowL: [168, 112],
+  elbowR: [250, 112],
+  wristL: [176, 140],
+  wristR: [244, 142],
+  hip: [196, 150],
+  kneeL: [150, 176],
+  kneeR: [246, 178],
+  ankleL: [170, 226],
+  ankleR: [232, 226],
+} as const;
+type K = keyof typeof pose;
+const bones: [K, K][] = [
+  ['head', 'neck'], ['neck', 'shoulderL'], ['neck', 'shoulderR'], ['shoulderL', 'elbowL'], ['elbowL', 'wristL'],
+  ['shoulderR', 'elbowR'], ['elbowR', 'wristR'], ['neck', 'hip'], ['hip', 'kneeL'], ['hip', 'kneeR'],
+  ['kneeL', 'ankleL'], ['kneeR', 'ankleR'],
+];
+
+// Variante "grid": landmarks esquemáticos de una mano (21 puntos).
+const hand: [number, number][] = [
+  [200, 220], [168, 200], [148, 174], [134, 152], [122, 132],
+  [178, 150], [172, 116], [168, 92], [165, 70],
+  [200, 146], [200, 108], [200, 82], [200, 58],
+  [220, 150], [226, 116], [230, 92], [233, 72],
+  [238, 160], [252, 134], [262, 116], [270, 98],
+];
+const handLinks: [number, number][] = [
+  [0, 1], [1, 2], [2, 3], [3, 4], [0, 5], [5, 6], [6, 7], [7, 8], [5, 9], [9, 10], [10, 11], [11, 12],
+  [9, 13], [13, 14], [14, 15], [15, 16], [13, 17], [17, 18], [18, 19], [19, 20], [0, 17],
+];
+
+const wave = (amp: number, freq: number, phase: number, y: number) =>
+  Array.from({ length: 81 }, (_, i) => {
+    const x = 20 + i * 4.5;
+    const env = 0.55 + 0.45 * Math.sin((i / 80) * Math.PI * 2);
+    return `${x.toFixed(1)},${(y + Math.sin(i * freq + phase) * amp * env).toFixed(1)}`;
+  }).join(' ');
+---
+
+<div class:list={['relative overflow-hidden bg-navy', className]} aria-hidden="true">
+  <svg viewBox="0 0 400 260" class="absolute inset-0 size-full" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <pattern id={`pv-grid-${variant}`} width="20" height="20" patternUnits="userSpaceOnUse">
+        <path d="M20 0H0V20" fill="none" stroke={IV} stroke-opacity="0.06"></path>
+      </pattern>
+    </defs>
+    <rect width="400" height="260" fill={`url(#pv-grid-${variant})`}></rect>
+
+    {
+      variant === 'modules' && (
+        <g>
+          {[0, 1, 2, 3].map((c) =>
+            [0, 1, 2].map((r) => {
+              const hl = (c === 1 && r === 0) || (c === 2 && r === 1);
+              const br = c === 3 && r === 2;
+              return (
+                <rect
+                  x={70 + c * 66}
+                  y={50 + r * 56}
+                  width="56"
+                  height="46"
+                  fill={hl ? TEAL : br ? BRONZE : 'none'}
+                  fill-opacity={hl ? 0.9 : br ? 0.85 : 0}
+                  stroke={IV}
+                  stroke-opacity={hl || br ? 0 : 0.35}
+                />
+              );
+            }),
+          )}
+          <path d="M98 96v10h66M230 152v10h-66v-10" fill="none" stroke={IV} stroke-opacity="0.5" />
+          <text x="70" y="236" font-family="IBM Plex Mono, monospace" font-size="9" letter-spacing="1.5" fill={IV} fill-opacity="0.5">
+            MODULES / REST API
+          </text>
+        </g>
+      )
+    }
+
+    {
+      variant === 'pose' && (
+        <g>
+          <path d="M120 232H290" stroke={IV} stroke-opacity="0.25" />
+          <path d="M196 150 L150 176" stroke={BRONZE} stroke-width="1" stroke-dasharray="3 3" />
+          <path d="M163 165 A18 18 0 0 1 178 172" fill="none" stroke={BRONZE} stroke-width="1.5" />
+          {bones.map(([a, b]) => (
+            <line x1={pose[a][0]} y1={pose[a][1]} x2={pose[b][0]} y2={pose[b][1]} stroke={IV} stroke-opacity="0.7" stroke-width="1.5" />
+          ))}
+          {Object.entries(pose).map(([key, [x, y]]) => (
+            <circle cx={x} cy={y} r={key === 'hip' || key === 'kneeL' ? 4.5 : 3.2} fill={key === 'hip' || key === 'kneeL' ? TEAL : IV} />
+          ))}
+          <path d="M296 40v180" stroke={IV} stroke-opacity="0.2" stroke-dasharray="2 4" />
+          <text x="304" y="56" font-family="IBM Plex Mono, monospace" font-size="9" letter-spacing="1.5" fill={IV} fill-opacity="0.5">
+            KEYPOINTS
+          </text>
+          <text x="304" y="72" font-family="IBM Plex Mono, monospace" font-size="9" letter-spacing="1.5" fill={BRONZE}>
+            θ KNEE
+          </text>
+        </g>
+      )
+    }
+
+    {
+      variant === 'nodes' && (
+        <g>
+          {[
+            [80, 70], [110, 190], [300, 60], [320, 200], [200, 40],
+          ].map(([x, y]) => (
+            <g>
+              <line x1={x} y1={y} x2="200" y2="135" stroke={IV} stroke-opacity="0.35" stroke-dasharray="3 4" />
+              <circle cx={x} cy={y} r="16" fill="none" stroke={TEAL} stroke-opacity="0.45" />
+              <rect x={(x ?? 0) - 4} y={(y ?? 0) - 4} width="8" height="8" fill={IV} />
+            </g>
+          ))}
+          <circle cx="200" cy="135" r="30" fill="none" stroke={BRONZE} stroke-opacity="0.6" />
+          <rect x="188" y="123" width="24" height="24" fill={BRONZE} />
+          <text x="226" y="128" font-family="IBM Plex Mono, monospace" font-size="9" letter-spacing="1.5" fill={IV} fill-opacity="0.6">
+            MQTT
+          </text>
+          <path d="M40 236 L70 236 L80 224 L100 230 L120 216 L140 222 L160 210" fill="none" stroke={TEAL} stroke-width="1.5" />
+        </g>
+      )
+    }
+
+    {
+      variant === 'grid' && (
+        <g>
+          <rect x="110" y="34" width="180" height="200" fill="none" stroke={IV} stroke-opacity="0.25" stroke-dasharray="4 4" />
+          {handLinks.map(([a, b]) => (
+            <line x1={hand[a]![0]} y1={hand[a]![1]} x2={hand[b]![0]} y2={hand[b]![1]} stroke={IV} stroke-opacity="0.6" stroke-width="1.25" />
+          ))}
+          {hand.map(([x, y], i) => (
+            <circle cx={x} cy={y} r={[4, 8, 12, 16, 20].includes(i) ? 3.6 : 2.6} fill={[4, 8, 12, 16, 20].includes(i) ? TEAL : IV} />
+          ))}
+          <text x="300" y="50" font-family="IBM Plex Mono, monospace" font-size="9" letter-spacing="1.5" fill={IV} fill-opacity="0.5">
+            21 PTS
+          </text>
+          <text x="300" y="66" font-family="IBM Plex Mono, monospace" font-size="9" letter-spacing="1.5" fill={BRONZE}>
+            LSA64
+          </text>
+        </g>
+      )
+    }
+
+    {
+      variant === 'wave' && (
+        <g>
+          <polyline points={wave(34, 0.42, 0, 100)} fill="none" stroke={TEAL} stroke-width="1.5" />
+          <polyline points={wave(22, 0.18, 1.2, 100)} fill="none" stroke={IV} stroke-opacity="0.45" stroke-width="1.2" />
+          <path d="M20 100H380" stroke={IV} stroke-opacity="0.2" />
+          <g transform="translate(300 196)">
+            <path d="M-40 0H40M0 -40V40" stroke={IV} stroke-opacity="0.25" />
+            {[-24, -8, 8, 24].map((x) =>
+              [-24, -8, 8, 24].map((y) => <circle cx={x} cy={y} r="2.4" fill={x > 0 && y < 0 ? BRONZE : IV} fill-opacity="0.85" />),
+            )}
+          </g>
+          <text x="20" y="236" font-family="IBM Plex Mono, monospace" font-size="9" letter-spacing="1.5" fill={IV} fill-opacity="0.5">
+            SDR · I/Q · SPECTRUM
+          </text>
+        </g>
+      )
+    }
+  </svg>
+</div>

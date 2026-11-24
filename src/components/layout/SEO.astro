@@ -1,0 +1,80 @@
+---
+import { siteConfig, activeSocialLinks, isConfigured } from '@/data/site-config';
+import { absoluteUrl, normalizePath } from '@/lib/url';
+
+export interface SEOProps {
+  title?: string;
+  description?: string;
+  image?: string;
+  imageAlt?: string;
+  type?: 'website' | 'article';
+  noindex?: boolean;
+  /** Datos estructurados adicionales (schema.org) para esta página. */
+  jsonLd?: Record<string, unknown>[];
+}
+
+const {
+  title,
+  description = siteConfig.description,
+  image = siteConfig.ogImage,
+  imageAlt = 'ADROX — Convertimos ideas en soluciones tecnológicas.',
+  type = 'website',
+  noindex = false,
+  jsonLd = [],
+} = Astro.props as SEOProps;
+
+const site = Astro.site;
+const fullTitle = title ? `${title} | ${siteConfig.name}` : `${siteConfig.name} | Ingeniería digital y soluciones tecnológicas`;
+const canonical = absoluteUrl(normalizePath(Astro.url.pathname), site);
+const ogImage = absoluteUrl(image, site);
+const siteUrl = absoluteUrl('/', site);
+
+// Datos estructurados: solo información real. Sin dirección, teléfono ni datos
+// empresariales que no hayan sido proporcionados.
+const sameAs = activeSocialLinks().map((s) => s.url);
+const organization: Record<string, unknown> = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  '@id': `${siteUrl}#organization`,
+  name: siteConfig.name,
+  url: siteUrl,
+  logo: absoluteUrl('/icons/adrox-logo-512.png', site),
+  description: siteConfig.description,
+  areaServed: ['Ecuador', 'Latinoamérica'],
+  knowsAbout: ['Ingeniería de software', 'Inteligencia artificial', 'Visión artificial', 'Internet de las cosas', 'Transformación digital'],
+  ...(sameAs.length ? { sameAs } : {}),
+  ...(isConfigured(siteConfig.contact.email) ? { email: siteConfig.contact.email } : {}),
+};
+const website = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  '@id': `${siteUrl}#website`,
+  name: siteConfig.name,
+  url: siteUrl,
+  inLanguage: 'es',
+  publisher: { '@id': `${siteUrl}#organization` },
+};
+const structured = [organization, website, ...jsonLd];
+---
+
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+{noindex && <meta name="robots" content="noindex, follow" />}
+
+<meta property="og:type" content={type} />
+<meta property="og:site_name" content={siteConfig.name} />
+<meta property="og:locale" content={siteConfig.locale} />
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={ogImage} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content={imageAlt} />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={fullTitle} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImage} />
+
+{structured.map((data) => <script type="application/ld+json" set:html={JSON.stringify(data).replace(/</g, '\\u003c')} />)}

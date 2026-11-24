@@ -1,0 +1,28 @@
+---
+import { statusTone, type ProjectStatus } from '@/data/projects';
+
+interface Props {
+  status: ProjectStatus;
+  label: string;
+  class?: string;
+}
+const { status, label, class: className } = Astro.props;
+const tone = statusTone[status];
+const styles = {
+  teal: 'text-teal-700 bg-teal-50 border-teal/25',
+  bronze: 'text-bronze-700 bg-bronze-50 border-bronze/30',
+  navy: 'text-navy bg-ivory-200/60 border-navy/15',
+};
+const dots = { teal: 'bg-teal', bronze: 'bg-bronze', navy: 'bg-navy' };
+---
+
+<span
+  class:list={[
+    'inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[0.75rem] leading-tight font-medium',
+    styles[tone],
+    className,
+  ]}
+>
+  <span class:list={['size-1.5 shrink-0 rounded-full', dots[tone]]} aria-hidden="true"></span>
+  <span><span class="sr-only">Estado: </span>{label}</span>
+</span>
